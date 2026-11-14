@@ -31,7 +31,7 @@ class popularity_recommender_py():
     #Use the popularity based recommender system model to
     #make recommendations
     def recommend(self, user_id):    
-        user_recommendations = self.popularity_recommendations
+        user_recommendations = self.popularity_recommendations.copy()
         
         #Add user_id column for which the recommendations are being generated
         user_recommendations['user_id'] = user_id
@@ -89,7 +89,7 @@ class item_similarity_recommender_py():
         #Initialize the item cooccurence matrix of size 
         #len(user_songs) X len(songs)
         ###############################################
-        cooccurence_matrix = np.matrix(np.zeros(shape=(len(user_songs), len(all_songs))), float)
+        cooccurence_matrix = np.zeros(shape=(len(user_songs), len(all_songs)), dtype=float)
            
         #############################################################
         #Calculate similarity between user songs and all unique songs
@@ -127,7 +127,10 @@ class item_similarity_recommender_py():
         
         #Calculate a weighted average of the scores in cooccurence matrix for all user songs.
         user_sim_scores = cooccurence_matrix.sum(axis=0)/float(cooccurence_matrix.shape[0])
-        user_sim_scores = np.array(user_sim_scores)[0].tolist()
+        if hasattr(user_sim_scores, 'A1'):
+            user_sim_scores = user_sim_scores.A1.tolist()
+        else:
+            user_sim_scores = np.asarray(user_sim_scores).flatten().tolist()
  
         #Sort the indices of user_sim_scores based upon their value
         #Also maintain the corresponding score
@@ -135,20 +138,21 @@ class item_similarity_recommender_py():
     
         #Create a dataframe from the following
         columns = ['user_id', 'song', 'score', 'rank']
-        #index = np.arange(1) # array of numbers for the number of samples
-        df = pandas.DataFrame(columns=columns)
+        rows = []
          
         #Fill the dataframe with top 10 item based recommendations
         rank = 1 
         for i in range(0,len(sort_index)):
-            if ~np.isnan(sort_index[i][0]) and all_songs[sort_index[i][1]] not in user_songs and rank <= 10:
-                df.loc[len(df)]=[user,all_songs[sort_index[i][1]],sort_index[i][0],rank]
+            if not np.isnan(sort_index[i][0]) and all_songs[sort_index[i][1]] not in user_songs and rank <= 10:
+                rows.append([user, all_songs[sort_index[i][1]], sort_index[i][0], rank])
                 rank = rank+1
         
+        df = pandas.DataFrame(rows, columns=columns)
+
         #Handle the case where there are no recommendations
         if df.shape[0] == 0:
             print("The current user has no songs for training the item similarity based recommendation model.")
-            return -1
+            return df
         else:
             return df
  
