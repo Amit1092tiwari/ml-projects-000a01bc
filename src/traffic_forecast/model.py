@@ -1,13 +1,20 @@
 """Time-series modeling and evaluation module for traffic forecast."""
 
+from __future__ import annotations
+
 import logging
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, ClassVar
+
 import joblib
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error
+from sklearn.metrics import (
+    mean_absolute_error,
+    mean_absolute_percentage_error,
+    mean_squared_error,
+)
 
 from src.traffic_forecast.features import create_calendar_features
 
@@ -16,16 +23,18 @@ logger = logging.getLogger(__name__)
 # Check optional Prophet availability
 try:
     from prophet import Prophet
+
     HAS_PROPHET = True
 except ImportError:
     try:
         from fbprophet import Prophet
+
         HAS_PROPHET = True
     except ImportError:
         HAS_PROPHET = False
 
 
-def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
+def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, float]:
     """Calculate standard regression and time-series evaluation metrics."""
     mae = float(mean_absolute_error(y_true, y_pred))
     mse = float(mean_squared_error(y_true, y_pred))
@@ -47,17 +56,27 @@ def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float
 class TrafficForecaster:
     """Production wrapper for traffic forecasting with fallback support."""
 
-    FEATURE_COLS = ["dayofweek", "day", "month", "year", "quarter", "is_weekend", "dow_sin", "dow_cos", "month_sin", "month_cos"]
+    FEATURE_COLS: ClassVar[list[str]] = [
+        "dayofweek",
+        "day",
+        "month",
+        "year",
+        "quarter",
+        "is_weekend",
+        "dow_sin",
+        "dow_cos",
+        "month_sin",
+        "month_cos",
+    ]
 
     def __init__(self, use_prophet: bool = True):
         self.use_prophet = use_prophet and HAS_PROPHET
-        self.model: Optional[Any] = None
+        self.model: Any | None = None
         self.backend = "prophet" if self.use_prophet else "gradient_boosting"
         logger.info("Initialized TrafficForecaster with backend: %s", self.backend)
 
-    def fit(self, train_df: pd.DataFrame) -> "TrafficForecaster":
-        """
-        Train the model on historical traffic data.
+    def fit(self, train_df: pd.DataFrame) -> TrafficForecaster:
+        """Train the model on historical traffic data.
 
         Args:
             train_df: DataFrame with 'ds' (datetime) and 'y' (target count).
@@ -88,8 +107,7 @@ class TrafficForecaster:
         return self
 
     def predict(self, future_df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Generate forecast predictions.
+        """Generate forecast predictions.
 
         Args:
             future_df: DataFrame containing 'ds' column.
@@ -124,7 +142,7 @@ class TrafficForecaster:
 
         return output
 
-    def save(self, filepath: Union[str, Path]) -> None:
+    def save(self, filepath: str | Path) -> None:
         """Serialize model artifact to disk."""
         path = Path(filepath)
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -132,7 +150,7 @@ class TrafficForecaster:
         logger.info("Saved model artifact to %s", path)
 
     @classmethod
-    def load(cls, filepath: Union[str, Path]) -> "TrafficForecaster":
+    def load(cls, filepath: str | Path) -> TrafficForecaster:
         """Load serialized model artifact from disk."""
         data = joblib.load(filepath)
         forecaster = cls(use_prophet=(data["backend"] == "prophet"))

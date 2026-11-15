@@ -1,12 +1,13 @@
 """Feature engineering utilities for time series traffic forecasting."""
 
+from __future__ import annotations
+
 import numpy as np
 import pandas as pd
 
 
 def create_calendar_features(df: pd.DataFrame, datetime_col: str = "ds") -> pd.DataFrame:
-    """
-    Extract calendar, seasonal, and cyclical features from datetime column.
+    """Extract calendar, seasonal, and cyclical features from datetime column.
 
     Args:
         df: Input DataFrame containing datetime_col.
@@ -35,8 +36,7 @@ def create_calendar_features(df: pd.DataFrame, datetime_col: str = "ds") -> pd.D
 
 
 def generate_future_horizon(last_date: pd.Timestamp, periods: int = 30, freq: str = "D") -> pd.DataFrame:
-    """
-    Generate an empty future DataFrame covering the forecasting horizon.
+    """Generate an empty future DataFrame covering the forecasting horizon.
 
     Args:
         last_date: The latest timestamp in historical training data.

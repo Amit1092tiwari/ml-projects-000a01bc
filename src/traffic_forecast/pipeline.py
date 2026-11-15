@@ -1,10 +1,13 @@
 """Production Batch Inference Pipeline for Daily Traffic Forecasting."""
 
+from __future__ import annotations
+
 import argparse
 import json
 import logging
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
+
 import pandas as pd
 
 from src.traffic_forecast.data_loader import load_traffic_data
@@ -15,7 +18,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(na
 logger = logging.getLogger(__name__)
 
 
-def check_data_drift(historical_series: pd.Series, predicted_series: pd.Series) -> Dict[str, Any]:
+def check_data_drift(historical_series: pd.Series, predicted_series: pd.Series) -> dict[str, Any]:
     """Check for statistical distribution drift between historical and forecast data."""
     hist_mean = float(historical_series.mean())
     hist_std = float(historical_series.std())
@@ -25,8 +28,12 @@ def check_data_drift(historical_series: pd.Series, predicted_series: pd.Series) 
     drift_detected = bool(z_score > 3.0)
 
     if drift_detected:
-        logger.warning("DATA DRIFT WARNING: Forecast mean (%.2f) diverges from historical mean (%.2f) by %.2f sigma!",
-                       pred_mean, hist_mean, z_score)
+        logger.warning(
+            "DATA DRIFT WARNING: Forecast mean (%.2f) diverges from historical mean (%.2f) by %.2f sigma!",
+            pred_mean,
+            hist_mean,
+            z_score,
+        )
     else:
         logger.info("Data drift check passed (z-score: %.2f)", z_score)
 
@@ -44,9 +51,8 @@ def run_batch_forecast_pipeline(
     forecast_days: int = 30,
     test_days: int = 30,
     use_prophet: bool = True,
-) -> Dict[str, Any]:
-    """
-    Execute end-to-end daily batch traffic forecasting pipeline.
+) -> dict[str, Any]:
+    """Execute end-to-end daily batch traffic forecasting pipeline.
 
     Steps:
       1. Load & validate data partition.
@@ -84,8 +90,12 @@ def run_batch_forecast_pipeline(
     logger.info("STEP 4: Evaluating holdout predictions")
     val_preds = forecaster.predict(test_df)
     metrics = calculate_metrics(test_df["y"].values, val_preds["yhat"].values)
-    logger.info("Validation Metrics: MAE=%.2f, RMSE=%.2f, MAPE=%.2f%%",
-                metrics["mae"], metrics["rmse"], metrics["mape_percent"])
+    logger.info(
+        "Validation Metrics: MAE=%.2f, RMSE=%.2f, MAPE=%.2f%%",
+        metrics["mae"],
+        metrics["rmse"],
+        metrics["mape_percent"],
+    )
 
     # Refit on full dataset for future batch forecasting
     logger.info("Refitting on full historical dataset (%d days) for batch horizon", len(df))
@@ -131,16 +141,25 @@ def run_batch_forecast_pipeline(
 
 def main():
     parser = argparse.ArgumentParser(description="Run daily batch traffic forecast pipeline.")
-    parser.add_argument("--data-path", type=str, default="Traffic Forecast - Time Series Analysis/Traffic data.csv",
-                        help="Path to raw traffic dataset CSV")
-    parser.add_argument("--output-dir", type=str, default="artifacts/traffic_forecast",
-                        help="Directory to save forecasts and metrics")
-    parser.add_argument("--forecast-days", type=int, default=30,
-                        help="Number of days to forecast")
-    parser.add_argument("--test-days", type=int, default=30,
-                        help="Number of days for holdout evaluation")
-    parser.add_argument("--no-prophet", action="store_true",
-                        help="Force using scikit-learn GradientBoosting fallback instead of Prophet")
+    parser.add_argument(
+        "--data-path",
+        type=str,
+        default="Traffic Forecast - Time Series Analysis/Traffic data.csv",
+        help="Path to raw traffic dataset CSV",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="artifacts/traffic_forecast",
+        help="Directory to save forecasts and metrics",
+    )
+    parser.add_argument("--forecast-days", type=int, default=30, help="Number of days to forecast")
+    parser.add_argument("--test-days", type=int, default=30, help="Number of days for holdout evaluation")
+    parser.add_argument(
+        "--no-prophet",
+        action="store_true",
+        help="Force using scikit-learn GradientBoosting fallback instead of Prophet",
+    )
 
     args = parser.parse_args()
     run_batch_forecast_pipeline(

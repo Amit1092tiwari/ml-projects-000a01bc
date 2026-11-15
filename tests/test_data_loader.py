@@ -1,8 +1,7 @@
 """Unit tests for traffic data loading and schema validation."""
 
-import pytest
 import pandas as pd
-from pathlib import Path
+import pytest
 
 from src.traffic_forecast.data_loader import load_traffic_data, validate_schema
 

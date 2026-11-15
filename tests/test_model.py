@@ -2,6 +2,7 @@
 
 import numpy as np
 import pandas as pd
+
 from src.traffic_forecast.model import TrafficForecaster, calculate_metrics
 
 

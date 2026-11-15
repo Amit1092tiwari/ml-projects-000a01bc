@@ -1,14 +1,15 @@
 """Unit tests for recommender system algorithms."""
 
-import sys
 from pathlib import Path
+import sys
+
 import pandas as pd
 
 # Add recommender directory to sys.path
 recommender_dir = Path(__file__).resolve().parent.parent / "Million Songs Dataset - Recommendation Engine"
 sys.path.insert(0, str(recommender_dir))
 
-from Recommenders import popularity_recommender_py, item_similarity_recommender_py
+from Recommenders import item_similarity_recommender_py, popularity_recommender_py
 
 
 def test_popularity_recommender():

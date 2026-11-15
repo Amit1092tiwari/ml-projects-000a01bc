@@ -1,7 +1,7 @@
 """Integration test for daily batch forecast pipeline."""
 
-from pathlib import Path
 import pandas as pd
+
 from src.traffic_forecast.pipeline import run_batch_forecast_pipeline
 
 
@@ -33,4 +33,4 @@ def test_batch_forecast_pipeline_synthetic(tmp_path):
     # Verify forecast file shape
     forecast_df = pd.read_csv(out_dir / "daily_traffic_forecast.csv")
     assert len(forecast_df) == 14
-    assert set(["ds", "yhat", "yhat_lower", "yhat_upper"]).issubset(set(forecast_df.columns))
+    assert {"ds", "yhat", "yhat_lower", "yhat_upper"}.issubset(set(forecast_df.columns))

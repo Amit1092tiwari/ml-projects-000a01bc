@@ -1,8 +1,10 @@
 """Data loading and schema validation module for traffic forecasting."""
 
+from __future__ import annotations
+
 import logging
 from pathlib import Path
-from typing import Optional, Union
+
 import pandas as pd
 
 logger = logging.getLogger(__name__)
@@ -18,13 +20,12 @@ def validate_schema(df: pd.DataFrame) -> None:
 
 
 def load_traffic_data(
-    file_path: Union[str, Path],
+    file_path: str | Path,
     resample_freq: str = "D",
     datetime_col: str = "Datetime",
     target_col: str = "Count",
 ) -> pd.DataFrame:
-    """
-    Load raw traffic CSV data, validate schema, parse timestamps, and aggregate.
+    """Load raw traffic CSV data, validate schema, parse timestamps, and aggregate.
 
     Args:
         file_path: Path to the traffic CSV dataset.

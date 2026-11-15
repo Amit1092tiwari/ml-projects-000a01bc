@@ -31,8 +31,7 @@ jobs:
 
     - name: Code Quality & Linting (Ruff)
       run: |
-        # Check source and tests for syntax errors and critical PEP8 violations
-        ruff check src/ tests/ "Million Songs Dataset - Recommendation Engine/"
+        ruff check .
 
     - name: Execute Unit & Integration Test Suite
       run: |

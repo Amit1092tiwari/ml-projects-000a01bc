@@ -1,10 +1,12 @@
-"""
-Apache Airflow DAG: Daily Scheduled Batch Traffic Forecasting Pipeline
+"""Apache Airflow DAG: Daily Scheduled Batch Traffic Forecasting Pipeline.
+
 ----------------------------------------------------------------------
 Cadence: Daily at 02:00 AM UTC
 SLA: 45 minutes
 Owners: MLOps / Data Engineering Team
 """
+
+from __future__ import annotations
 
 from datetime import datetime, timedelta
 import logging
@@ -13,6 +15,7 @@ try:
     from airflow import DAG
     from airflow.operators.empty import EmptyOperator
     from airflow.operators.python import PythonOperator
+
     AIRFLOW_AVAILABLE = True
 except ImportError:
     # Graceful dummy classes for local environments without apache-airflow installed
@@ -34,11 +37,13 @@ DEFAULT_ARGS = {
 }
 
 
-def task_validate_input_partition(**context):
+def task_validate_input_partition(**context) -> None:
     """Verify that yesterday's end-of-day data partition exists and conforms to schema."""
     from pathlib import Path
-    from src.traffic_forecast.data_loader import validate_schema
+
     import pandas as pd
+
+    from src.traffic_forecast.data_loader import validate_schema
 
     data_path = Path("Traffic Forecast - Time Series Analysis/Traffic data.csv")
     if not data_path.is_file():
@@ -49,7 +54,7 @@ def task_validate_input_partition(**context):
     logger.info("Partition validation successful for %s", data_path)
 
 
-def task_run_batch_inference(**context):
+def task_run_batch_inference(**context) -> None:
     """Execute the batch forecast pipeline and generate predictions."""
     from src.traffic_forecast.pipeline import run_batch_forecast_pipeline
 
@@ -65,7 +70,7 @@ def task_run_batch_inference(**context):
     logger.info("Batch inference completed with status: %s", result["pipeline_status"])
 
 
-def task_audit_drift_and_publish(**context):
+def task_audit_drift_and_publish(**context) -> None:
     """Inspect model drift indicators and publish artifacts to operational stores."""
     summary = None
     if context.get("ti"):
