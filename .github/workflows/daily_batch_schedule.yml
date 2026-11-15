@@ -1,0 +1,52 @@
+name: Daily Batch Forecast Schedule
+
+on:
+  schedule:
+    # Runs everyday at 02:00 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      forecast_days:
+        description: 'Number of future days to forecast'
+        required: true
+        default: '30'
+
+jobs:
+  daily-batch-run:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+
+    - name: Install Pipeline Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
+
+    - name: Execute Daily Traffic Batch Pipeline
+      run: |
+        python -m src.traffic_forecast.pipeline \
+          --data-path "Traffic Forecast - Time Series Analysis/Traffic data.csv" \
+          --output-dir "artifacts/traffic_forecast" \
+          --forecast-days ${{ github.event.inputs.forecast_days || 30 }} \
+          --test-days 30
+
+    - name: Display Generated Metrics Summary
+      run: |
+        cat artifacts/traffic_forecast/forecast_metrics.json
+
+    - name: Archive Forecast Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: daily-traffic-forecast-${{ github.sha }}
+        path: |
+          artifacts/traffic_forecast/daily_traffic_forecast.csv
+          artifacts/traffic_forecast/forecast_metrics.json
+        retention-days: 30

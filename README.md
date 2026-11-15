@@ -106,3 +106,30 @@ jupyter lab
 - **Isolated Preprocessing Pipelines:** Always use `sklearn.pipeline.Pipeline` or fit scalers/encoders strictly on the training set to prevent data leakage.
 - **Appropriate Evaluation Metrics:** In imbalanced classification (e.g., Fraud, Spam), prioritize Precision, Recall, and PR-AUC over raw accuracy.
 - **Time Series Splitting:** For chronological datasets, use forward chaining or `TimeSeriesSplit` rather than standard random cross-validation.
+
+---
+
+## 🏗️ Enterprise MLOps & Production Architecture
+
+This repository includes a production blueprint demonstrating how exploratory machine learning models are operationalized into **CI/CD Automation**, **Batch Processing**, and **Daily Scheduled Cadence**.
+
+### 1. Architectural Topology
+- **Continuous Integration (CI):** [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) validates code style via `ruff`, runs the `pytest` test suite, and verifies that all 24 Jupyter notebooks parse without JSON corruption.
+- **Daily Batch Orchestration:** [`.github/workflows/daily_batch_schedule.yml`](./.github/workflows/daily_batch_schedule.yml) triggers everyday at `02:00 AM UTC` to execute the daily traffic demand forecasting pipeline and export artifact metrics.
+- **Airflow DAG:** [`dags/daily_traffic_batch_dag.py`](./dags/daily_traffic_batch_dag.py) provides a production-grade DAG definition for enterprise orchestrators (Apache Airflow / Cloud Composer).
+- **Modular Pipeline Source:** [`src/traffic_forecast/`](./src/traffic_forecast/) contains modular data validation, feature engineering, model fitting with fallback mechanisms, and batch inference.
+- **Containerization:** [`Dockerfile`](./Dockerfile) packages the batch forecasting environment into a hardened, non-root Linux container.
+
+### 2. Running Batch Inference
+```bash
+python -m src.traffic_forecast.pipeline \
+  --data-path "Traffic Forecast - Time Series Analysis/Traffic data.csv" \
+  --output-dir "artifacts/traffic_forecast" \
+  --forecast-days 30
+```
+
+### 3. Running the Test Suite
+```bash
+pytest tests/ -v
+```
+
