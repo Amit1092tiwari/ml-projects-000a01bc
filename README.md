@@ -1,4 +1,4 @@
-# Machine Learning Projects
+# Machine Learning Projects (`ml-projects-000a01bc`)
 
 A comprehensive collection of 24 practical machine learning mini-projects implemented with Jupyter Notebooks and Python. This repository covers regression, classification, clustering, natural language processing (NLP), computer vision, speech processing, recommendation engines, and time series forecasting.
 
@@ -14,8 +14,8 @@ Follow the step-by-step video playlist for these projects:
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/Amit1092tiwari/Machine-Learning-Projects.git
-cd Machine-Learning-Projects
+git clone https://github.com/Amit1092tiwari/ml-projects-000a01bc.git
+cd ml-projects-000a01bc
 ```
 
 ### 2. Create and activate a virtual environment
