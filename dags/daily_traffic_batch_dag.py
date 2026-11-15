@@ -8,8 +8,8 @@ Owners: MLOps / Data Engineering Team
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
 import logging
+from datetime import datetime, timedelta
 
 try:
     from airflow import DAG

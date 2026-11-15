@@ -12,14 +12,10 @@ requires-python = ">=3.10"
 [tool.ruff]
 line-length = 120
 target-version = "py310"
-exclude = [
-    ".git",
-    "__pycache__",
+extend-exclude = [
+    "*.ipynb",
     ".ipynb_checkpoints",
-    ".venv",
-    "venv",
-    "build",
-    "dist",
+    "**/.ipynb_checkpoints",
 ]
 
 [tool.ruff.lint]
@@ -34,10 +30,6 @@ select = [
 ignore = [
     "E501",   # Line too long (handled by formatter)
 ]
-
-[tool.ruff.lint.per-file-ignores]
-# Notebooks often have exploratory scripts, loose imports, and display outputs
-"*.ipynb" = ["E402", "F401", "I001", "PLC0414", "RUF027", "T201"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

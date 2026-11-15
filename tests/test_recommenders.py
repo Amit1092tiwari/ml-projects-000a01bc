@@ -1,7 +1,7 @@
 """Unit tests for recommender system algorithms."""
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import pandas as pd
 
@@ -9,7 +9,7 @@ import pandas as pd
 recommender_dir = Path(__file__).resolve().parent.parent / "Million Songs Dataset - Recommendation Engine"
 sys.path.insert(0, str(recommender_dir))
 
-from Recommenders import item_similarity_recommender_py, popularity_recommender_py
+from Recommenders import item_similarity_recommender_py, popularity_recommender_py  # noqa: E402
 
 
 def test_popularity_recommender():
